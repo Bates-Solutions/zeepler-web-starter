@@ -95,7 +95,7 @@ a typed error for each answer the API gives:
 | --------- | ------------------------------- | --------------------------------------------------------------------- |
 | `400`     | `invalid`                       | Each error on its input                                               |
 | `401`     | `unauthorized`                  | The reason, with a pointer to Account                                 |
-| `402`     | `capped`                        | The free monthly labels are used; the message names the dashboard     |
+| `402`     | `capped`                        | The free monthly labels are used, with a link to the dashboard        |
 | `429`     | `rate-limited`/`spending-limit` | How long to wait, from `retryAfter` in the body; or the limit reached |
 | `5xx`     | `server`                        | Try again shortly                                                     |
 | No answer | `network`                       | Check the connection and the base URL                                 |

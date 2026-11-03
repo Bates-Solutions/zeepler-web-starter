@@ -24,7 +24,8 @@ export default function LabelForm({ connection }: { connection: Connection | nul
   const [values, setValues] = useState<Values>(exampleValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<{ text: string; link?: string | null } | null>(null);
-  const [zpl, setZpl] = useState<string | null>(null);
+  // The ZPL, and the values it was made from, so it can say when the form has moved on.
+  const [result, setResult] = useState<{ zpl: string; from: Values } | null>(null);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -49,23 +50,23 @@ export default function LabelForm({ connection }: { connection: Connection | nul
     const { body, fieldFor } = buildRequest(values);
     busyRef.current = true;
     setBusy(true);
-    const result = await zeeplify(connection, body);
+    const response = await zeeplify(connection, body);
     busyRef.current = false;
     setBusy(false);
 
-    if (result.ok) {
-      setZpl(result.value);
+    if (response.ok) {
+      setResult({ zpl: response.value, from: values });
       return;
     }
     // The last good ZPL stays on screen: a failed Generate again should not
     // throw away a label that was fine, nor the button that has focus.
-    if (result.error.kind === 'invalid') {
+    if (response.error.kind === 'invalid') {
       // Put each of the API's errors on the input it is about. One that names
       // no input (the size, say) can only come from a change to the
       // definition, so it is shown above the button with its path.
       const mapped: Record<string, string> = {};
       const unmapped: string[] = [];
-      for (const { field, message } of result.error.errors) {
+      for (const { field, message } of response.error.errors) {
         const fieldId = fieldForPath(field, fieldFor);
         if (fieldId) mapped[fieldId] ??= `The API says this ${message}.`;
         else unmapped.push(`${field || 'body'} ${message}`);
@@ -73,13 +74,13 @@ export default function LabelForm({ connection }: { connection: Connection | nul
       setErrors(mapped);
       setFormError({
         text: unmapped.length
-          ? `${describeError(result.error)} ${unmapped.join('; ')}.`
-          : describeError(result.error),
+          ? `${describeError(response.error)} ${unmapped.join('; ')}.`
+          : describeError(response.error),
       });
       focusFirst(mapped);
       return;
     }
-    setFormError({ text: describeError(result.error), link: dashboardLink(result.error) });
+    setFormError({ text: describeError(response.error), link: dashboardLink(response.error) });
   };
 
   return (
@@ -160,8 +161,13 @@ export default function LabelForm({ connection }: { connection: Connection | nul
         </div>
       </form>
 
-      {zpl !== null && (
-        <ResultBox zpl={zpl} onAgain={connection ? () => void generate() : null} busy={busy} />
+      {result && (
+        <ResultBox
+          zpl={result.zpl}
+          stale={FIELDS.some((f) => (result.from[f.id] ?? '') !== (values[f.id] ?? ''))}
+          onAgain={connection ? () => void generate() : null}
+          busy={busy}
+        />
       )}
     </section>
   );

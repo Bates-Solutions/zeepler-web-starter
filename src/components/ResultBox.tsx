@@ -2,10 +2,13 @@ import { useId, useRef, useState } from 'react';
 
 export default function ResultBox({
   zpl,
+  stale,
   onAgain,
   busy,
 }: {
   zpl: string;
+  /** The form has changed since this ZPL was made. */
+  stale: boolean;
   /** Null when there is no key to generate with. */
   onAgain: (() => void) | null;
   busy: boolean;
@@ -37,13 +40,18 @@ export default function ResultBox({
       <p id={`${id}-zpl-hint`} className="text-sm text-slate-600">
         Send this to a Zebra printer at 203 dpi, loaded with 4 × 2 in labels.
       </p>
+      {stale && (
+        <p id={`${id}-zpl-stale`} className="mt-1 text-sm font-medium text-amber-900">
+          This ZPL is from before your latest changes to the form. Generate again to update it.
+        </p>
+      )}
       <textarea
         id={`${id}-zpl`}
         ref={area}
         readOnly
         rows={12}
         value={zpl}
-        aria-describedby={`${id}-zpl-hint`}
+        aria-describedby={`${id}-zpl-hint${stale ? ` ${id}-zpl-stale` : ''}`}
         className="input mt-1 font-mono text-sm"
       />
       <div className="mt-3 flex flex-wrap items-center gap-3">

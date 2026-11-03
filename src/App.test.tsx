@@ -250,4 +250,21 @@ describe('the app', () => {
     await user.click(screen.getByRole('button', { name: 'Forget key' }));
     expect(screen.queryByRole('button', { name: 'Generate again' })).not.toBeInTheDocument();
   });
+
+  it('says when the ZPL on screen no longer matches the form', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    reply(200, '^XA^XZ', 'text/plain');
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    const zpl = await screen.findByLabelText('ZPL');
+    expect(screen.queryByText(/from before your latest changes/)).not.toBeInTheDocument();
+
+    await user.type(screen.getByLabelText('SKU', { exact: false }), '-2');
+    reply(429, { error: 'Rate limit exceeded', retryAfter: 2 });
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+
+    await screen.findByText(/Try again in 2 seconds/);
+    expect(zpl).toHaveAccessibleDescription(/from before your latest changes/);
+  });
 });
