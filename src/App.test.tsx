@@ -267,4 +267,37 @@ describe('the app', () => {
     await screen.findByText(/Try again in 2 seconds/);
     expect(zpl).toHaveAccessibleDescription(/from before your latest changes/);
   });
+
+  it('warns on Copy too when the ZPL is stale, but not for a trailing space', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    reply(200, '^XA^XZ', 'text/plain');
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    await screen.findByLabelText('ZPL');
+
+    await user.type(screen.getByLabelText('Item name'), ' ');
+    expect(screen.queryByText(/from before your latest changes/)).not.toBeInTheDocument();
+
+    await user.type(screen.getByLabelText('Item name'), 'X');
+    expect(screen.getByRole('button', { name: 'Copy' })).toHaveAccessibleDescription(
+      /from before your latest changes/,
+    );
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
+    expect(await screen.findByText('Copied, but it is from before your latest changes.')).toBeInTheDocument();
+  });
+
+  it('recovers when the ZPL body never arrives', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    const broken = new Response('^XA^XZ', { status: 200 });
+    vi.spyOn(broken, 'text').mockRejectedValue(new TypeError('network error'));
+    fetchMock.mockResolvedValueOnce(broken);
+
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+
+    expect(await screen.findByText(/Could not reach the API/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Generate ZPL' })).not.toHaveAttribute('aria-disabled');
+  });
 });

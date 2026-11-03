@@ -50,9 +50,13 @@ export default function LabelForm({ connection }: { connection: Connection | nul
     const { body, fieldFor } = buildRequest(values);
     busyRef.current = true;
     setBusy(true);
-    const response = await zeeplify(connection, body);
-    busyRef.current = false;
-    setBusy(false);
+    let response;
+    try {
+      response = await zeeplify(connection, body);
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
 
     if (response.ok) {
       setResult({ zpl: response.value, from: values });
@@ -164,7 +168,8 @@ export default function LabelForm({ connection }: { connection: Connection | nul
       {result && (
         <ResultBox
           zpl={result.zpl}
-          stale={FIELDS.some((f) => (result.from[f.id] ?? '') !== (values[f.id] ?? ''))}
+          // Trimmed, as buildRequest sends them: a trailing space changes nothing printed.
+          stale={FIELDS.some((f) => (result.from[f.id] ?? '').trim() !== (values[f.id] ?? '').trim())}
           onAgain={connection ? () => void generate() : null}
           busy={busy}
         />

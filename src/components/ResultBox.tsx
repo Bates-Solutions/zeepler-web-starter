@@ -22,7 +22,7 @@ export default function ResultBox({
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(zpl);
-      setCopied({ zpl, text: 'Copied.' });
+      setCopied({ zpl, text: stale ? 'Copied, but it is from before your latest changes.' : 'Copied.' });
     } catch {
       // No clipboard access (an insecure origin, or permission refused): select
       // it, so one keystroke copies it.
@@ -55,7 +55,12 @@ export default function ResultBox({
         className="input mt-1 font-mono text-sm"
       />
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button type="button" className="btn-primary" onClick={() => void copy()}>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => void copy()}
+          aria-describedby={stale ? `${id}-zpl-stale` : undefined}
+        >
           Copy
         </button>
         {onAgain && (

@@ -125,7 +125,13 @@ export async function zeeplify(connection: Connection, body: unknown): Promise<R
   });
   if (!response) return { ok: false, error: { kind: 'network' } };
   if (!response.ok) return { ok: false, error: await toError(response) };
-  return { ok: true, value: await response.text() };
+  // The body can still fail to arrive after the status did (a dropped
+  // connection), and nothing in this module may throw.
+  try {
+    return { ok: true, value: await response.text() };
+  } catch {
+    return { ok: false, error: { kind: 'network' } };
+  }
 }
 
 /** A sentence for an error, for anywhere that has nothing more specific to say. */
