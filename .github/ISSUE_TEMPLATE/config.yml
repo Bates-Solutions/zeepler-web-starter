@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/Bates-Solutions/zeepler-web-starter/blob/main/SECURITY.md
+    about: Please email instead of opening a public issue.
+  - name: Questions about the zeepler API
+    url: https://zeepler.com/documentation
+    about: The API documentation, with a support address.
