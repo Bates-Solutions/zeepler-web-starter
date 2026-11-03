@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+@layer components {
+  .input {
+    @apply block w-full rounded-md border border-slate-400 bg-white px-3 py-2 text-slate-900;
+  }
+  .input[aria-invalid='true'] {
+    @apply border-red-700;
+  }
+  .field-error {
+    @apply mt-1 text-sm text-red-800;
+  }
+  .btn-primary {
+    @apply rounded-md bg-emerald-800 px-4 py-2 font-medium text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:bg-slate-400;
+  }
+  .btn-secondary {
+    @apply rounded-md border border-slate-400 bg-white px-4 py-2 font-medium text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400;
+  }
+  .link {
+    @apply text-emerald-800 underline underline-offset-2;
+  }
+  :where(button, input, textarea, a):focus-visible {
+    @apply outline-2 outline-offset-2 outline-slate-900;
+  }
+}
