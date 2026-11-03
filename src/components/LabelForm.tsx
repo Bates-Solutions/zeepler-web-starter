@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import { describeError, zeeplify, type Connection } from '../api/zeepler';
+import { describeError, zeeplify, type ApiError, type Connection } from '../api/zeepler';
 import {
   buildRequest,
   checkValues,
@@ -10,12 +10,23 @@ import {
 } from '../label/definition';
 import ResultBox from './ResultBox';
 
+/** The 402's dashboard link, shown only if it really is zeepler's: it comes from a response body. */
+const dashboardLink = (error: ApiError) => {
+  if (error.kind !== 'capped') return null;
+  try {
+    return new URL(error.dashboard).origin === 'https://zeepler.com' ? error.dashboard : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function LabelForm({ connection }: { connection: Connection | null }) {
   const [values, setValues] = useState<Values>(exampleValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<{ text: string; link?: string | null } | null>(null);
   const [zpl, setZpl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
   const id = useId();
   const inputId = (fieldId: string) => `${id}-${fieldId}`;
@@ -26,7 +37,7 @@ export default function LabelForm({ connection }: { connection: Connection | nul
   };
 
   const generate = async () => {
-    if (!connection) return;
+    if (!connection || busyRef.current) return;
     const found = checkValues(values);
     setErrors(found);
     setFormError(null);
@@ -36,15 +47,18 @@ export default function LabelForm({ connection }: { connection: Connection | nul
     }
 
     const { body, fieldFor } = buildRequest(values);
+    busyRef.current = true;
     setBusy(true);
     const result = await zeeplify(connection, body);
+    busyRef.current = false;
     setBusy(false);
 
     if (result.ok) {
       setZpl(result.value);
       return;
     }
-    setZpl(null);
+    // The last good ZPL stays on screen: a failed Generate again should not
+    // throw away a label that was fine, nor the button that has focus.
     if (result.error.kind === 'invalid') {
       // Put each of the API's errors on the input it is about. One that names
       // no input (the size, say) can only come from a change to the
@@ -57,15 +71,15 @@ export default function LabelForm({ connection }: { connection: Connection | nul
         else unmapped.push(`${field || 'body'} ${message}`);
       }
       setErrors(mapped);
-      setFormError(
-        unmapped.length
+      setFormError({
+        text: unmapped.length
           ? `${describeError(result.error)} ${unmapped.join('; ')}.`
           : describeError(result.error),
-      );
+      });
       focusFirst(mapped);
       return;
     }
-    setFormError(describeError(result.error));
+    setFormError({ text: describeError(result.error), link: dashboardLink(result.error) });
   };
 
   return (
@@ -124,15 +138,31 @@ export default function LabelForm({ connection }: { connection: Connection | nul
 
         <div className="sm:col-span-2">
           <p role="alert" className="mb-3 text-sm text-red-800 empty:hidden">
-            {formError}
+            {formError?.text}
+            {formError?.link && (
+              <>
+                {' '}
+                <a className="link" href={formError.link}>
+                  Open the dashboard
+                </a>
+              </>
+            )}
           </p>
-          <button type="submit" className="btn-primary" disabled={!connection || busy}>
+          {/* aria-disabled rather than disabled while busy, so the button keeps focus. */}
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={!connection}
+            aria-disabled={busy || undefined}
+          >
             {busy ? 'Generating…' : 'Generate ZPL'}
           </button>
         </div>
       </form>
 
-      {zpl !== null && <ResultBox zpl={zpl} onAgain={() => void generate()} busy={busy} />}
+      {zpl !== null && (
+        <ResultBox zpl={zpl} onAgain={connection ? () => void generate() : null} busy={busy} />
+      )}
     </section>
   );
 }

@@ -6,23 +6,26 @@ export default function ResultBox({
   busy,
 }: {
   zpl: string;
-  onAgain: () => void;
+  /** Null when there is no key to generate with. */
+  onAgain: (() => void) | null;
   busy: boolean;
 }) {
-  const [copied, setCopied] = useState<string | null>(null);
+  // Which ZPL the message is about, so new ZPL from Generate again is never
+  // shown as already copied.
+  const [copied, setCopied] = useState<{ zpl: string; text: string } | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
   const id = useId();
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(zpl);
-      setCopied('Copied.');
+      setCopied({ zpl, text: 'Copied.' });
     } catch {
       // No clipboard access (an insecure origin, or permission refused): select
       // it, so one keystroke copies it.
       area.current?.focus();
       area.current?.select();
-      setCopied('Selected. Press Ctrl+C, or ⌘C on a Mac, to copy.');
+      setCopied({ zpl, text: 'Selected. Press Ctrl+C, or ⌘C on a Mac, to copy.' });
     }
   };
 
@@ -47,11 +50,13 @@ export default function ResultBox({
         <button type="button" className="btn-primary" onClick={() => void copy()}>
           Copy
         </button>
-        <button type="button" className="btn-secondary" onClick={onAgain} disabled={busy}>
-          Generate again
-        </button>
+        {onAgain && (
+          <button type="button" className="btn-secondary" onClick={onAgain} aria-disabled={busy || undefined}>
+            {busy ? 'Generating…' : 'Generate again'}
+          </button>
+        )}
         <span role="status" className="text-sm text-slate-700">
-          {copied}
+          {copied?.zpl === zpl ? copied.text : null}
         </span>
       </div>
     </div>

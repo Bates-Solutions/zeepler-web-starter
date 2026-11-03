@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { me, describeError, REGIONS, type Account } from '../api/zeepler';
 import { baseUrlFor, forget, mask, save, type Region, type Saved } from '../account/storage';
 
@@ -42,6 +42,25 @@ export default function AccountPanel({
   const [testing, setTesting] = useState(false);
   const id = useId();
 
+  // Bumped whenever the key changes, so a Test connection that answers after
+  // the key was replaced or forgotten is ignored rather than reported.
+  const generation = useRef(0);
+
+  // Save, Replace, Forget and Cancel each swap the view and unmount the button
+  // that was pressed, so focus is put somewhere sensible once the new view is
+  // rendered, rather than falling to the page.
+  const focusAfter = useRef<'key' | 'test' | 'replace' | null>(null);
+  useEffect(() => {
+    if (!focusAfter.current) return;
+    document.getElementById(`${id}-${focusAfter.current}`)?.focus();
+    focusAfter.current = null;
+  });
+
+  const startEditing = () => {
+    focusAfter.current = 'key';
+    setEditing(true);
+  };
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const next: typeof errors = {};
@@ -60,7 +79,10 @@ export default function AccountPanel({
     }
     const value: Saved = { apiKey: key, region, customUrl: customUrl.trim(), remember };
     const stored = save(value);
+    generation.current++;
+    setTesting(false);
     setApiKey('');
+    focusAfter.current = 'test';
     setEditing(false);
     setStatus(
       stored
@@ -74,10 +96,12 @@ export default function AccountPanel({
   };
 
   const test = async () => {
-    if (!saved) return;
+    if (!saved || testing) return;
+    const asked = ++generation.current;
     setTesting(true);
     setStatus({ tone: 'info', text: 'Checking…' });
     const result = await me({ apiKey: saved.apiKey, baseUrl: baseUrlFor(saved) });
+    if (asked !== generation.current) return;
     setTesting(false);
     setStatus(
       result.ok
@@ -88,8 +112,10 @@ export default function AccountPanel({
 
   const forgetKey = () => {
     forget();
+    generation.current++;
+    setTesting(false);
     setStatus({ tone: 'info', text: 'The key is forgotten on this device.' });
-    setEditing(true);
+    startEditing();
     onChange(null);
   };
 
@@ -108,10 +134,16 @@ export default function AccountPanel({
             <dd className="break-all font-mono">{baseUrlFor(saved)}</dd>
           </dl>
           <div className="flex flex-wrap gap-3">
-            <button type="button" className="btn-primary" onClick={test} disabled={testing}>
+            <button
+              id={`${id}-test`}
+              type="button"
+              className="btn-primary"
+              onClick={test}
+              aria-disabled={testing || undefined}
+            >
               Test connection
             </button>
-            <button type="button" className="btn-secondary" onClick={() => setEditing(true)}>
+            <button type="button" className="btn-secondary" id={`${id}-replace`} onClick={startEditing}>
               Replace key
             </button>
             <button type="button" className="btn-secondary" onClick={forgetKey}>
@@ -174,7 +206,7 @@ export default function AccountPanel({
                 Base URL
               </label>
               <p id={`${id}-url-hint`} className="text-sm text-slate-600">
-                For a dedicated deployment. Its host must also be added to connect-src in index.html.
+                For a dedicated deployment. Its host must also be added to connect-src in vite.config.ts.
               </p>
               <input
                 id={`${id}-url`}
@@ -214,7 +246,14 @@ export default function AccountPanel({
               Save key
             </button>
             {saved && (
-              <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  focusAfter.current = 'replace';
+                  setEditing(false);
+                }}
+              >
                 Cancel
               </button>
             )}

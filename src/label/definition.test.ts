@@ -90,7 +90,6 @@ describe('the label definition', () => {
     const { fieldFor } = buildRequest({ ...exampleValues(), description: '' });
     expect(fieldForPath('templates[1].dataPath', fieldFor)).toBe('sku');
     expect(fieldForPath('templates[3].coords', fieldFor)).toBe('quantity');
-    expect(fieldForPath('data.bin', fieldFor)).toBe('bin');
     expect(fieldForPath('config.size', fieldFor)).toBeUndefined();
     expect(fieldForPath('templates[9].type', fieldFor)).toBeUndefined();
   });

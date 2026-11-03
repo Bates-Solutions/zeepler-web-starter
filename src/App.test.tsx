@@ -14,6 +14,7 @@ const reply = (status: number, body: unknown, type = 'application/json') =>
   );
 
 beforeEach(() => {
+  vi.restoreAllMocks();
   fetchMock.mockReset();
   vi.stubGlobal('fetch', fetchMock);
 });
@@ -157,5 +158,96 @@ describe('the app', () => {
     await user.click(screen.getByRole('button', { name: 'Copy' }));
     expect(await screen.findByText(/Press Ctrl\+C/)).toBeInTheDocument();
     expect(screen.getByLabelText('ZPL')).toHaveFocus();
+  });
+
+  it('keeps focus somewhere sensible as the account panel switches views', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    expect(screen.getByRole('button', { name: 'Test connection' })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: 'Replace key' }));
+    expect(screen.getByLabelText('API key')).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByRole('button', { name: 'Replace key' })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: 'Forget key' }));
+    expect(screen.getByLabelText('API key')).toHaveFocus();
+  });
+
+  it('ignores a connection test that answers after the key was forgotten', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    let answer!: (r: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((resolve) => (answer = resolve)));
+
+    await user.click(screen.getByRole('button', { name: 'Test connection' }));
+    await user.click(screen.getByRole('button', { name: 'Forget key' }));
+    answer(new Response(JSON.stringify({ plan: 'free', labelsThisMonth: 1, cap: 10 }), { status: 200 }));
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(screen.queryByText(/Connected/)).not.toBeInTheDocument();
+    expect(screen.getByText('The key is forgotten on this device.')).toBeInTheDocument();
+  });
+
+  it('links the dashboard from a 402, but only zeepler’s', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    reply(402, { message: 'Free labels used.', dashboard: 'https://zeepler.com/dashboard' });
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    expect(await screen.findByRole('link', { name: 'Open the dashboard' })).toHaveAttribute(
+      'href',
+      'https://zeepler.com/dashboard',
+    );
+
+    reply(402, { message: 'Free labels used.', dashboard: 'https://evil.example/dashboard' });
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    await screen.findByText('Free labels used.');
+    expect(screen.queryByRole('link', { name: 'Open the dashboard' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the last good ZPL, and focus, when Generate again fails', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    reply(200, '^XA^XZ', 'text/plain');
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    await screen.findByLabelText('ZPL');
+
+    reply(500, { error: 'Internal error' });
+    await user.click(screen.getByRole('button', { name: 'Generate again' }));
+
+    expect(await screen.findByText(/could not answer just now/)).toBeInTheDocument();
+    expect(screen.getByLabelText('ZPL')).toHaveValue('^XA^XZ');
+    expect(screen.getByRole('button', { name: 'Generate again' })).toHaveFocus();
+  });
+
+  it('does not show new ZPL as already copied', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    reply(200, '^XA^FDone^FS^XZ', 'text/plain');
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    await user.click(await screen.findByRole('button', { name: 'Copy' }));
+    expect(await screen.findByText('Copied.')).toBeInTheDocument();
+
+    reply(200, '^XA^FDtwo^FS^XZ', 'text/plain');
+    await user.click(screen.getByRole('button', { name: 'Generate again' }));
+    expect(await screen.findByDisplayValue('^XA^FDtwo^FS^XZ')).toBeInTheDocument();
+    expect(screen.queryByText('Copied.')).not.toBeInTheDocument();
+  });
+
+  it('offers no Generate again once the key is forgotten', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await saveKey(user);
+    reply(200, '^XA^XZ', 'text/plain');
+    await user.click(screen.getByRole('button', { name: 'Generate ZPL' }));
+    await screen.findByLabelText('ZPL');
+
+    await user.click(screen.getByRole('button', { name: 'Forget key' }));
+    expect(screen.queryByRole('button', { name: 'Generate again' })).not.toBeInTheDocument();
   });
 });

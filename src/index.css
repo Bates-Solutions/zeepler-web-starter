@@ -11,10 +11,10 @@
     @apply mt-1 text-sm text-red-800;
   }
   .btn-primary {
-    @apply rounded-md bg-emerald-800 px-4 py-2 font-medium text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:bg-slate-400;
+    @apply rounded-md bg-emerald-800 px-4 py-2 font-medium text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:bg-slate-400 aria-disabled:cursor-wait aria-disabled:opacity-75;
   }
   .btn-secondary {
-    @apply rounded-md border border-slate-400 bg-white px-4 py-2 font-medium text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400;
+    @apply rounded-md border border-slate-400 bg-white px-4 py-2 font-medium text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400 aria-disabled:cursor-wait aria-disabled:opacity-75;
   }
   .link {
     @apply text-emerald-800 underline underline-offset-2;

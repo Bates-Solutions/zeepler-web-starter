@@ -185,9 +185,8 @@ export function buildRequest(values: Values): { body: LabelRequest; fieldFor: st
 
 /** The field an API error's `field` path points at, if it points at one. */
 export function fieldForPath(path: string, fieldFor: string[]): string | undefined {
+  // The API names a value problem by its template (`templates[2].dataPath`),
+  // never by a path into `data`.
   const template = /^templates\[(\d+)\]/.exec(path);
-  if (template) return fieldFor[Number(template[1])];
-  const data = /^data\.(\w+)/.exec(path);
-  if (data) return FIELDS.find((f) => f.id === data[1])?.id;
-  return undefined;
+  return template ? fieldFor[Number(template[1])] : undefined;
 }
