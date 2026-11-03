@@ -104,16 +104,27 @@ export async function me(connection: Connection): Promise<Result<Account>> {
   if (!response) return { ok: false, error: { kind: 'network' } };
   if (!response.ok) return { ok: false, error: await toError(response) };
 
-  const body = await readJson(response);
-  const plan = body.plan === 'card' || body.plan === 'invoice' ? body.plan : 'free';
-  return {
-    ok: true,
-    value: {
-      plan,
-      labelsThisMonth: num(body.labelsThisMonth, 0),
-      cap: typeof body.cap === 'number' ? body.cap : null,
-    },
-  };
+  // A success has to look like zeepler's answer. A 200 from something else (a
+  // mistyped custom host, a proxy's HTML page) or a body that never arrived
+  // must not read as "Connected".
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    return { ok: false, error: { kind: 'network' } };
+  }
+  const { plan, labelsThisMonth, cap } = (body && typeof body === 'object' ? body : {}) as Record<
+    string,
+    unknown
+  >;
+  if (
+    (plan !== 'free' && plan !== 'card' && plan !== 'invoice') ||
+    typeof labelsThisMonth !== 'number' ||
+    (cap !== null && typeof cap !== 'number')
+  ) {
+    return { ok: false, error: { kind: 'server' } };
+  }
+  return { ok: true, value: { plan, labelsThisMonth, cap } };
 }
 
 /** `POST /v1/zeeplify`: turn a label request into ZPL. Each success is one label on the account. */
