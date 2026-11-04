@@ -5,6 +5,9 @@
   "version": "0.0.0-development",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": ">=26"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
