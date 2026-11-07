@@ -35,7 +35,7 @@
     "axe-core": "4.14.0",
     "eslint": "10.11.0",
     "eslint-plugin-react-hooks": "7.1.1",
-    "globals": "16.5.0",
+    "globals": "17.14.0",
     "jsdom": "30.0.1",
     "prettier": "3.9.10",
     "semantic-release": "25.0.9",
