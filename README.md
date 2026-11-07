@@ -15,7 +15,7 @@ It is reference code, meant to be read and changed. It does not print: see
 
 ## Quick start
 
-You need Node.js 22 or later.
+You need Node.js 26 or later.
 
 ```bash
 git clone https://github.com/Bates-Solutions/zeepler-web-starter.git
