@@ -43,5 +43,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
+    // Node's own localStorage (on by default since Node 25) shadows jsdom's,
+    // and is undefined without --localstorage-file. Turn it off so the tests
+    // get jsdom's storage, as the browser would.
+    execArgv: ['--no-webstorage'],
   },
 });
