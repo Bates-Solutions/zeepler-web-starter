@@ -35,6 +35,19 @@ describe('me()', () => {
     });
   });
 
+  it('does not call an unreadable or foreign 200 a connection', async () => {
+    reply(200, '<!doctype html><title>Not the API</title>', 'text/html');
+    expect(await me(connection)).toEqual({ ok: false, error: { kind: 'network' } });
+
+    reply(200, { hello: 'world' });
+    expect(await me(connection)).toEqual({ ok: false, error: { kind: 'server' } });
+
+    const broken = new Response('{}', { status: 200 });
+    vi.spyOn(broken, 'json').mockRejectedValue(new TypeError('network error'));
+    fetchMock.mockResolvedValue(broken);
+    expect(await me(connection)).toEqual({ ok: false, error: { kind: 'network' } });
+  });
+
   it('turns a 401 into unauthorized, with the API’s reason', async () => {
     reply(401, { error: 'Account disabled' });
     expect(await me(connection)).toEqual({
