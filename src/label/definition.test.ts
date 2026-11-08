@@ -17,11 +17,6 @@ describe('the label size', () => {
     expect(DPI).toBe(203);
   });
 
-  // The name is the size in inches, so a typo in either is caught.
-  it('is named for its inches', () => {
-    expect(LABEL_SIZE).toBe(`${LABEL_INCHES.width}x${LABEL_INCHES.height}`);
-  });
-
   // A 203 dpi head is 8 dots/mm, 203.2 dots an inch. The size may not reach
   // past the dots that physically fit on the stock at that resolution.
   it('fits on its stock at 8 dots/mm', () => {
