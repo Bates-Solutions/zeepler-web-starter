@@ -15,8 +15,22 @@
  * any of them.
  */
 
+/** The size the API is asked for, named "<width>x<height>" in inches. */
 export const LABEL_SIZE = '4x2';
-export const LABEL_DOTS = { width: 815, height: 406 } as const;
+export const LABEL_INCHES = { width: 4, height: 2 } as const;
+
+/** Dots per inch. zeepler targets 203 dpi printers only. */
+export const DPI = 203;
+
+/**
+ * The label in dots: its inches times `DPI`, rounded down, since a fraction of
+ * a dot is not on the stock. Derived rather than typed: the width used to be
+ * typed as 815, 3 dots more than a 4 in label has.
+ */
+export const LABEL_DOTS = {
+  width: Math.floor(LABEL_INCHES.width * DPI),
+  height: Math.floor(LABEL_INCHES.height * DPI),
+} as const;
 
 type TextElement = { type: 'Text'; coords: [number, number]; font?: string; maxLength?: number };
 type BarCodeElement = { type: 'BarCode'; coords: [number, number]; style?: 'code128' | 'code93' | 'ean13' };
