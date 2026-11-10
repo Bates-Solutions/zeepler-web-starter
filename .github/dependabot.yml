@@ -10,6 +10,12 @@ updates:
     groups:
       minor-and-patch:
         update-types: ['minor', 'patch']
+    ignore:
+      # typescript-eslint 8.x accepts TypeScript >=4.8.4 <6.1.0, so a newer
+      # TypeScript fails `npm ci` with ERESOLVE (see #10). Drop this once
+      # typescript-eslint widens its peer range.
+      - dependency-name: 'typescript'
+        versions: ['>= 6.1.0']
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
