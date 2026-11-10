@@ -1,6 +1,15 @@
+<p align="center">
+  <a href="https://zeepler.com/?utm_source=github&utm_medium=readme&utm_campaign=starter">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/assets/zeepler-mark-dark.svg">
+      <img src=".github/assets/zeepler-mark-light.svg" alt="zeepler" width="96" height="96">
+    </picture>
+  </a>
+</p>
+
 # zeepler web starter
 
-A small web app to fork as the start of your own [zeepler](https://zeepler.com) integration. It
+A small web app to fork as the start of your own [zeepler](https://zeepler.com/?utm_source=github&utm_medium=readme&utm_campaign=starter) integration. It
 does four things:
 
 1. connects to your zeepler account with an API key,
@@ -37,14 +46,14 @@ Open the address it prints, paste your API key under **Account**, and press **Te
 
 ## Getting a key
 
-Sign up at [zeepler.com](https://zeepler.com/auth/signup) and create a key in the dashboard. It
+Sign up at [zeepler.com](https://zeepler.com/auth/signup?utm_source=github&utm_medium=readme&utm_campaign=starter) and create a key in the dashboard. It
 starts `zpl_`. Choose the region your account was created in: the United States
 (`api.zeepler.com`) or Canada (`api.ca.zeepler.com`).
 
 **Test connection** calls `GET /v1/me`, which checks the key and reports your plan and this
 month's labels without generating one, so it costs nothing. Each **Generate** is one label on
 your account. Without a card on file, an account can generate 10 labels a month. See
-[pricing](https://zeepler.com/pricing).
+[pricing](https://zeepler.com/pricing?utm_source=github&utm_medium=readme&utm_campaign=starter).
 
 ## How the label maps to the request
 
@@ -78,7 +87,7 @@ becomes
 
 Coordinates are in dots at 203 dpi, measured from the top-left corner. A 4 × 2 in label is
 812 × 406 dots. The element types are `Text`, `BarCode` and `QRCode`, and the
-[API documentation](https://zeepler.com/documentation) lists every option.
+[API documentation](https://zeepler.com/documentation?utm_source=github&utm_medium=readme&utm_campaign=starter) lists every option.
 
 ⚠️ **Print a label on real stock after changing any coordinate, font or length.** ZPL text does
 not wrap, and neither the app nor the API can tell that two elements overlap or that text runs
@@ -145,3 +154,24 @@ Report a vulnerability as described in [SECURITY.md](SECURITY.md).
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). MIT licensed: see [LICENSE](LICENSE).
+
+## About
+
+zeepler and this starter are built and maintained by [Bates Solutions](https://bates-solutions.com/?utm_source=github&utm_medium=readme&utm_campaign=starter).
+
+<a href="https://bates-solutions.com/?utm_source=github&utm_medium=readme&utm_campaign=starter">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/bates-solutions-on-dark.svg">
+    <img src=".github/assets/bates-solutions-on-light.svg" alt="Bates Solutions" width="240">
+  </picture>
+</a>
+
+The MIT licence covers the code. The zeepler and Bates Solutions names and logos are not licensed
+for reuse. To take them out of your copy:
+
+1. In `src/App.tsx`, remove the header logo and `zeepler.com` button, the footer credit, and the
+   imports from `./brand/`. Point the remaining zeepler link at your own documentation if you like.
+2. Delete `src/brand/` (its test goes with it).
+3. Delete `public/favicon.svg` and its `<link rel="icon">` in `index.html`, or replace the file
+   with your own icon.
+4. In this README, remove the logo at the top and this About section, and delete `.github/assets/`.
