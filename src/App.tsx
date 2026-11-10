@@ -23,11 +23,11 @@ export default function App() {
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-semibold">zeepler web starter</h1>
             <p className="text-slate-700">
-              Fill in a label, get ZPL back. A starting point for your own{' '}
+              Fill in a label, get ZPL back. A starting point for your own integration with the{' '}
               <a className="link" href={ZEEPLER_DOCS_URL}>
-                zeepler
-              </a>{' '}
-              integration.
+                zeepler API
+              </a>
+              .
             </p>
           </div>
           <a className="btn-secondary hidden shrink-0 sm:inline-block" href={ZEEPLER_URL}>

@@ -1,5 +1,6 @@
 <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- The zeepler mark, as src/components/brand/LogoMark.tsx draws it; change them together.
+  <!-- The zeepler mark, copied from zeepler's public/favicon.svg. src/brand/zeepler-mark.svg and
+       .github/assets/zeepler-mark-*.svg draw the same mark; change them together.
        Inverted on a dark browser tab by the media query below. -->
   <style>
     .ink { fill: #0b1f33; } .ink-line { stroke: #0b1f33; }
