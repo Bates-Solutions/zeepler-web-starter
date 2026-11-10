@@ -77,7 +77,7 @@ becomes
 ```
 
 Coordinates are in dots at 203 dpi, measured from the top-left corner. A 4 × 2 in label is
-815 × 406 dots. The element types are `Text`, `BarCode` and `QRCode`, and the
+812 × 406 dots. The element types are `Text`, `BarCode` and `QRCode`, and the
 [API documentation](https://zeepler.com/documentation) lists every option.
 
 ⚠️ **Print a label on real stock after changing any coordinate, font or length.** ZPL text does

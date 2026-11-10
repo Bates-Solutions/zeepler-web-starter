@@ -5,9 +5,31 @@ import {
   checkValues,
   exampleValues,
   fieldForPath,
+  DPI,
   FIELDS,
   LABEL_DOTS,
+  LABEL_INCHES,
+  LABEL_SIZE,
 } from './definition';
+
+describe('the label size', () => {
+  it('targets 203 dpi', () => {
+    expect(DPI).toBe(203);
+  });
+
+  // A 203 dpi head is 8 dots/mm, 203.2 dots an inch. The size may not reach
+  // past the dots that physically fit on the stock at that resolution.
+  it('fits on its stock at 8 dots/mm', () => {
+    expect(LABEL_DOTS.width).toBeLessThanOrEqual(LABEL_INCHES.width * 203.2);
+    expect(LABEL_DOTS.height).toBeLessThanOrEqual(LABEL_INCHES.height * 203.2);
+  });
+
+  // Pinned to the bounds zeepler's API checks coordinates against.
+  it('is 812 x 406 for 4x2', () => {
+    expect(LABEL_SIZE).toBe('4x2');
+    expect(LABEL_DOTS).toEqual({ width: 812, height: 406 });
+  });
+});
 
 // The bounds zeepler's validator enforces on a request body (validate.mjs in
 // the zeepler repo), restated so a change to the definition that the API would
