@@ -1,0 +1,23 @@
+<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- The zeepler mark, as src/components/brand/LogoMark.tsx draws it; change them together.
+       Inverted on a dark browser tab by the media query below. -->
+  <style>
+    .ink { fill: #0b1f33; } .ink-line { stroke: #0b1f33; }
+    .accent { fill: #047857; } .accent-line { stroke: #047857; }
+    .paper { fill: #ffffff; }
+    @media (prefers-color-scheme: dark) {
+      .ink { fill: #f6f7f9; } .ink-line { stroke: #f6f7f9; }
+      .accent { fill: #10b981; } .accent-line { stroke: #10b981; }
+      .paper { fill: #202124; }
+    }
+  </style>
+  <rect class="paper ink-line" x="11" y="10" width="26" height="34" rx="1.5" stroke-width="3"/>
+  <rect class="ink" x="4" y="4" width="40" height="9" rx="2.5"/>
+  <circle class="accent" cx="38" cy="8.5" r="2"/>
+  <path class="accent-line" d="M17.5 21H30.5L17.5 35H30.5" stroke-width="4" stroke-miterlimit="10"/>
+  <rect class="paper" x="20.3" y="33" width="0.5" height="4"/>
+  <rect class="paper" x="22.6" y="33" width="0.8" height="4"/>
+  <rect class="paper" x="24.4" y="33" width="0.5" height="4"/>
+  <rect class="paper" x="26.1" y="33" width="1.1" height="4"/>
+  <rect class="paper" x="28.4" y="33" width="0.5" height="4"/>
+</svg>

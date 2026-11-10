@@ -1,3 +1,12 @@
+<p align="center">
+  <a href="https://zeepler.com?utm_source=github&utm_medium=readme&utm_campaign=starter">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/assets/zeepler-mark-dark.svg">
+      <img src=".github/assets/zeepler-mark-light.svg" alt="zeepler" width="96" height="96">
+    </picture>
+  </a>
+</p>
+
 # zeepler web starter
 
 A small web app to fork as the start of your own [zeepler](https://zeepler.com) integration. It
@@ -145,3 +154,18 @@ Report a vulnerability as described in [SECURITY.md](SECURITY.md).
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). MIT licensed: see [LICENSE](LICENSE).
+
+## About
+
+zeepler and this starter are built and maintained by [Bates Solutions](https://bates-solutions.com?utm_source=github&utm_medium=readme&utm_campaign=starter).
+
+<a href="https://bates-solutions.com?utm_source=github&utm_medium=readme&utm_campaign=starter">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/bates-solutions-on-dark.svg">
+    <img src=".github/assets/bates-solutions-on-light.svg" alt="Bates Solutions" width="240">
+  </picture>
+</a>
+
+The MIT licence covers the code. The zeepler and Bates Solutions names and logos are not licensed
+for reuse: in your copy, remove the logos in `src/brand/` and `public/favicon.svg`, and the links in
+`src/brand/links.ts`.
