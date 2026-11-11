@@ -32,3 +32,23 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:
 - **A rendered label preview** that sends label content to a third-party service.
 - **Third-party code at runtime:** analytics, fonts, CDNs.
 - **Logging label content**, anywhere.
+
+## Release check (maintainers)
+
+Before a release is announced, run the live demo end to end with a real key:
+
+```bash
+npx playwright install chromium   # once
+ZEEPLER_API_KEY=zpl_... npm run release-check
+```
+
+It opens https://bates-solutions.github.io/zeepler-web-starter/, checks the served CSP, saves the key,
+runs Test connection and generates the example bin label, then checks the ZPL carries every example
+value. Set `ZEEPLER_REGION=ca` for a Canadian account, or `STARTER_URL` to check another copy.
+
+- Each run uses one label from the account.
+- It never runs in CI, and records nothing of the page: no trace, screenshot or video.
+- Without `ZEEPLER_API_KEY` the test is skipped.
+
+Then paste the ZPL into a printer, or a ZPL viewer, and check the label by eye: nothing overlaps or runs
+off the edge.
