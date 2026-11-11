@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { exampleValues } from '../src/label/definition';
+import { FIELDS } from '../src/label/definition';
 
 const apiKey = process.env.ZEEPLER_API_KEY ?? '';
 const region = process.env.ZEEPLER_REGION === 'ca' ? 'Canada' : 'United States';
@@ -16,7 +16,13 @@ test('the live demo connects, and generates the example bin label', async ({ pag
     /connect-src https:\/\/api\.zeepler\.com https:\/\/api\.ca\.zeepler\.com;/,
   );
 
-  await page.getByLabel('API key').fill(apiKey);
+  // ⚠️ A failed fill's error carries the value it was typing, and Playwright
+  // prints it and writes it to test-results/. Replace it with one that does not.
+  try {
+    await page.getByLabel('API key').fill(apiKey);
+  } catch {
+    throw new Error('Could not type the key into the API key input.');
+  }
   await page.getByRole('radio', { name: region }).check();
   await page.getByRole('button', { name: 'Save key' }).click();
 
@@ -30,8 +36,11 @@ test('the live demo connects, and generates the example bin label', async ({ pag
   const zpl = page.getByLabel('ZPL', { exact: true });
   await expect(zpl).toHaveValue(/^\^XA[\s\S]*\^XZ\s*$/, { timeout: 15_000 });
 
-  // Each example value is on the label. They hold none of ^, ~ or _, which the
-  // API hex-escapes under ^FH, so each appears in the ZPL as written.
+  // Each field is on the label, in the form it is printed (Qty 100, not 100,
+  // which the description already holds). The examples hold none of ^, ~ or _,
+  // which the API hex-escapes under ^FH, so each appears in the ZPL as written.
   const text = await zpl.inputValue();
-  for (const value of Object.values(exampleValues())) expect(text).toContain(value);
+  for (const field of FIELDS) {
+    expect(text).toContain(field.toData ? field.toData(field.example) : field.example);
+  }
 });
