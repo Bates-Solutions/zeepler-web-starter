@@ -35,11 +35,18 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:
 
 ## Release check (maintainers)
 
-Before a release is announced, run the live demo end to end with a real key. Read the key without
-echoing it, so it stays out of your shell history:
+Before a release is announced, run the live demo end to end with a real key:
 
 ```bash
 npx playwright install chromium   # once
+ npm run release-check -- zpl_your_key
+```
+
+The leading space keeps the line out of your shell history where `HISTCONTROL` includes
+`ignorespace` (`ignoreboth`, the Ubuntu default, does). While it runs, other users on the machine can
+see the key in the process list. To keep it off the command line, read it without echoing it instead:
+
+```bash
 read -rs ZEEPLER_API_KEY && export ZEEPLER_API_KEY
 npm run release-check
 unset ZEEPLER_API_KEY
@@ -51,7 +58,7 @@ Set `ZEEPLER_REGION=ca` for a Canadian account, or `STARTER_URL` to check anothe
 
 - Each run uses one label from the account.
 - It never runs in CI, and records nothing of the page: no trace, screenshot or video.
-- Without `ZEEPLER_API_KEY` the test is skipped.
+- With no key, from the argument or `ZEEPLER_API_KEY`, the test is skipped.
 
 The test does not keep the ZPL, so check the printed label by hand: open the demo yourself, save the
 key, Generate ZPL and Copy, then send it to a printer or paste it into a ZPL viewer. Check that nothing

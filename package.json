@@ -18,7 +18,7 @@
     "typecheck": "tsc -b && tsc -p e2e",
     "test": "vitest run",
     "check:csp": "node scripts/check-csp.mjs",
-    "release-check": "playwright test"
+    "release-check": "node scripts/release-check.mjs"
   },
   "dependencies": {
     "react": "19.3.1",
