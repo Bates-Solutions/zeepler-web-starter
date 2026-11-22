@@ -33,7 +33,8 @@ is reference code for it, meant to be read and changed.
   ready to copy.
 - One file defines the label and one file holds the API calls, so there is one place to change
   each.
-- Shows each API error on the input it belongs to.
+- Shows a validation error (`400`) on the input it belongs to, and every other error as a message
+  saying what to do.
 
 ## Quick start
 
