@@ -28,7 +28,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:
 
 ## What does not fit
 
-- **Printing or device handling.** The app stops at the ZPL; see the README's Where to go next.
+- **Printing or device handling.** The app stops at the ZPL; see the README's Limitations.
 - **A rendered label preview** that sends label content to a third-party service.
 - **Third-party code at runtime:** analytics, fonts, CDNs.
 - **Logging label content**, anywhere.
